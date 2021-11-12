@@ -10,6 +10,7 @@ imsize = size(Im_loss);
 P = mask;
 completionIM = Im_loss;
 new_patch_size = patch_size;
+mini_patch = zeros(patch_size,patch_size,3);
 if patch_size >= 27
     new_patch_size = 10;
 end
@@ -56,7 +57,9 @@ for i = patch_wid+1: new_patch_size: imsize(1)
                     end
                 end
             end
-            Im_loss(i_up :i_down, j_up: j_down, :) = Im_loss2(min_delta_x-patch_wid:min_delta_x+patch_wid, min_delta_y-patch_wid:min_delta_y+patch_wid, :);            
+            mini_patch = Im_loss2(min_delta_x-patch_wid:min_delta_x+patch_wid, min_delta_y-patch_wid:min_delta_y+patch_wid, :);
+            mini_patch = yang_blurpatchboundary(Im_loss, min_delta_x, min_delta_y, patch_size);
+            Im_loss(i_up :i_down, j_up: j_down, :) = mini_patch;            
         end
     end
 end
