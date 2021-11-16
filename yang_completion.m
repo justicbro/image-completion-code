@@ -1,6 +1,6 @@
 function completionIM = yang_completion(Im_loss, mask, wenli_im, patch_size)
 search_step = 4;
-alpha = 0.95;
+alpha = 0.1;
 wenli_im = mat2gray(wenli_im);
 mask2 = ~mask;
 Im_loss2 = Im_loss.*mask2;
@@ -12,7 +12,7 @@ completionIM = Im_loss;
 new_patch_size = patch_size;
 mini_patch = zeros(patch_size,patch_size,3);
 if patch_size >= 27
-    new_patch_size = 10;
+    new_patch_size = 40;
 end
 for i = patch_wid+1: new_patch_size: imsize(1)
     for j = patch_wid+1: new_patch_size: imsize(2)
@@ -57,9 +57,18 @@ for i = patch_wid+1: new_patch_size: imsize(1)
                     end
                 end
             end
+            flag = 1;
+            if i+patch_size > imsize(1) || P(i+patch_size+1,j) == 0
+                flag = 2;
+            end
+            if j+patch_size > imsize(2) || P(i,j+patch_size+1) == 0
+                flag = 3;
+            end
+            
             mini_patch = Im_loss2(min_delta_x-patch_wid:min_delta_x+patch_wid, min_delta_y-patch_wid:min_delta_y+patch_wid, :);
-            mini_patch = yang_blurpatchboundary(Im_loss, min_delta_x, min_delta_y, patch_size);
-            Im_loss(i_up :i_down, j_up: j_down, :) = mini_patch;            
+            Im_loss(i_up :i_down, j_up: j_down, :) = mini_patch; 
+            Im_loss = yang_blurpatchboundary2(Im_loss, i, j, flag, patch_size);
+                     
         end
     end
 end
